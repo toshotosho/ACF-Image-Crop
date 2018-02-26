@@ -51,7 +51,8 @@ class acf_field_image_crop extends acf_field_image {
             'save_in_media_library' => 'yes',
             'target_size' => 'thumbnail',
             'library' => 'all',
-            'retina_mode' => 'no'
+            'retina_mode' => 'no',
+            'delete_original' => 'no'
         );
 
         $this->options = get_option( 'acf_image_crop_settings' );
@@ -244,6 +245,15 @@ class acf_field_image_crop extends acf_field_image {
             )
         ));
 
+        // delete_original
+        acf_render_field_setting( $field, array(
+            'label'         => __('Delete original','acf-image_crop'),
+            'instructions'  => __('Removes the original image after cropping, if save in media library is enabled','acf-image_crop'),
+            'type'          => 'radio',
+            'layout'        => 'horizontal',
+            'name'          => 'delete_original',
+            'choices'       =>  array('yes' => __('Yes', 'acf'), 'no' => __('No', 'acf'))
+        ));
     }
 
 
@@ -315,6 +325,7 @@ class acf_field_image_crop extends acf_field_image {
             'data-width'            => $width,
             'data-height'           => $height,
             'data-force_crop'       => $field['force_crop'] == 'yes' ? 'true' : 'false',
+            'data-delete_original'  => $field['delete_original'],
             'data-save_to_media_library' => $field['save_in_media_library'],
             'data-save_format'      => $field['save_format'],
             'data-preview_size'     => $field['preview_size'],
@@ -510,6 +521,9 @@ class acf_field_image_crop extends acf_field_image {
         require_once ABSPATH . "/wp-admin/includes/file.php";
         require_once ABSPATH . "/wp-admin/includes/image.php";
 
+        // Delete original after cropping?
+        $deleteOriginal = isset($_POST['delete_original']) && $_POST['delete_original'] == 'yes';
+
         // Create the variable that will hold the new image data
         $imageData = array();
 
@@ -580,6 +594,10 @@ class acf_field_image_crop extends acf_field_image {
                 // Add the preview url as well
                 $previewUrlObject = wp_get_attachment_image_src( $attachmentId, $previewSize);
                 $imageData['preview_url'] = $previewUrlObject[0];
+
+                if ( $deleteOriginal ) {
+                  wp_delete_attachment($id, true);
+                }
             }
             // Else we need to return the actual path of the cropped image
             else{

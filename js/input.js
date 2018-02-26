@@ -402,6 +402,7 @@ function initialize_field( $el ) {
             var targetWidth = $options.data('width');
             var targetHeight = $options.data('height');
             var saveToMediaLibrary = $options.data('save_to_media_library');
+            var deleteOriginal = $options.data('delete_original');
             if($options.data('crop_type') == 'min'){
                 targetWidth = $options.data('x2') - $options.data('x1');
                 targetHeight = $options.data('y2') - $options.data('y1');
@@ -416,7 +417,8 @@ function initialize_field( $el ) {
                 target_width: targetWidth,
                 target_height: targetHeight,
                 preview_size: $options.data('preview_size'),
-                save_to_media_library: saveToMediaLibrary
+                save_to_media_library: saveToMediaLibrary,
+                delete_original: deleteOriginal
             }
             $.post(ajaxurl, data, function(data, textStatus, xhr) {
                 if(data.success){
